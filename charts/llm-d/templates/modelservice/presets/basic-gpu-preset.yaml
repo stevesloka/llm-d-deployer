@@ -100,6 +100,12 @@ data:
                   mountPath: /models
                   readOnly: true
                 {{ `{{- end }}` }}
+              readinessProbe:
+                httpGet:
+                  path: /health
+                  port: 8001
+                initialDelaySeconds: 5
+                periodSeconds: 5
           volumes:
             - name: home
               emptyDir: {}
@@ -182,6 +188,12 @@ data:
               ports:
                 - containerPort: 8000
                   protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /health
+                  port: 8001
+                initialDelaySeconds: 5
+                periodSeconds: 5
           volumes:
             - name: home
               emptyDir: {}

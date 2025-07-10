@@ -79,6 +79,12 @@ data:
               ports:
                 - containerPort: 5557
                   protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /health
+                  port: 8001
+                initialDelaySeconds: 5
+                periodSeconds: 5
           volumes:
             - name: home
               emptyDir: {}
@@ -129,6 +135,12 @@ data:
               ports:
                 - containerPort: 5557
                   protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /health
+                  port: 8001
+                initialDelaySeconds: 5
+                periodSeconds: 5
           volumes:
             - name: home
               emptyDir: {}

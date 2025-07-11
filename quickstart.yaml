@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mnist-demo
+spec:
+  template:
+    spec:
+      hostIPC: true
+      restartPolicy: OnFailure
+      containers:
+        - name: mnist
+          image: vault.habana.ai/gaudi-docker/1.21.2/ubuntu22.04/habanalabs/pytorch-installer-2.6.0:latest
+          command: ["/bin/bash", "-c"]
+          args:
+            - >-
+              git clone --branch 1.21.0 https://github.com/HabanaAI/Model-References.git /Model-References;
+              MODEL_PATH=/Model-References/PyTorch/examples/computer_vision/hello_world;
+              cd $MODEL_PATH;
+
+              MNIST_CMD="python mnist.py \
+                --batch-size=64 \
+                --epochs=1 \
+                --lr=1.0 \
+                --gamma=0.7 \
+                --hpu";
+
+              mpirun -np 8 \
+                --allow-run-as-root \
+                --bind-to core \
+                --map-by ppr:4:socket:PE=6 \
+                -rank-by core --report-bindings \
+                --tag-output \
+                --merge-stderr-to-stdout --prefix $MPI_ROOT \
+                $MNIST_CMD;
+          securityContext:
+            capabilities:
+              add: ["SYS_NICE"]
+          resources:
+            limits:
+              habana.ai/gaudi: 8
+              memory: 409Gi
+              hugepages-2Mi: 95000Mi
+            requests:
+              habana.ai/gaudi: 8
+              memory: 409Gi
+              hugepages-2Mi: 95000Mi

@@ -84,6 +84,13 @@ data:
               args:
                 - "--port"
                 - "8001"
+              ports:
+                - containerPort: 8001
+                  protocol: TCP
+                  name: vllm
+                - containerPort: 8000
+                  protocol: TCP
+                  name: routing-proxy
               env:
                 - name: HOME
                   value: /home
@@ -129,6 +136,12 @@ data:
                   mountPath: /models
                   readOnly: true
                 {{ `{{- end }}` }}
+              readinessProbe:
+                httpGet:
+                  path: /metrics
+                  port: 8001
+                initialDelaySeconds: 5
+                periodSeconds: 5
           volumes:
             - name: home
               emptyDir: {}
@@ -214,6 +227,12 @@ data:
                   port: 8000
                 failureThreshold: 3
                 periodSeconds: 5
+                - name: HABANA_VISIBLE_DEVICES
+                  value: "0,1,2,3"
+                - name: TENSOR_PARALLEL_SIZE
+                  value: "4"
+                - name: MAX_MODEL_LEN
+                  value: "8192"
               volumeMounts:
                 - name: home
                   mountPath: /home

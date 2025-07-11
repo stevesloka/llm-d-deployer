@@ -132,7 +132,7 @@ validation() {
       -H 'Content-Type: application/json' \
       -d '{
         "model":"'"$MODEL_ID"'",
-        "prompt":"Who are you?"
+        "prompt":"Tell me a joke."
       }'
   echo
 
